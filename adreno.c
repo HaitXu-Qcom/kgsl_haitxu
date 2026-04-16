@@ -23,6 +23,7 @@
 #include <linux/trace.h>
 #include <linux/units.h>
 #include <linux/version.h>
+#include <linux/of_reserved_mem.h>
 #if (KERNEL_VERSION(6, 3, 0) <= LINUX_VERSION_CODE)
 #include <linux/firmware/qcom/qcom_scm.h>
 #else
@@ -2065,6 +2066,11 @@ int adreno_device_probe(struct platform_device *pdev,
 		&adreno_regmap_ops, device);
 	if (status)
 		goto err_bus_close;
+
+	if (of_find_property(pdev->dev.of_node, "memory-region", NULL)) {
+		of_reserved_mem_device_init_by_idx(&pdev->dev,
+			pdev->dev.of_node, 0);
+	}
 
 	/*
 	 * The SMMU APIs use unsigned long for virtual addresses which means

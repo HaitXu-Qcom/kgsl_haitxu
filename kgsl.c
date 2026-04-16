@@ -43,6 +43,7 @@
 /* Instantiate tracepoints */
 #define CREATE_TRACE_POINTS
 #include "kgsl_power_trace.h"
+#include <linux/of_reserved_mem.h>
 
 #ifndef arch_mmap_check
 #define arch_mmap_check(addr, len, flags)	(0)
@@ -5369,6 +5370,10 @@ void kgsl_device_platform_remove(struct kgsl_device *device)
 	kthread_destroy_worker(device->events_worker);
 
 	kgsl_device_snapshot_close(device);
+
+	if (of_find_property(device->pdev->dev.of_node, "memory-region", NULL)) {
+		of_reserved_mem_device_release(&device->pdev->dev);
+	}
 
 	idr_destroy(&device->context_idr);
 	idr_destroy(&device->timelines);
